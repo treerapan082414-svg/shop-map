@@ -1,0 +1,38 @@
+name: Publish BK Lyric Studio
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lyric-studio/**'
+      - 'index.html'
+      - '.github/workflows/publish-lyric.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Prepare site
+        run: |
+          touch .nojekyll
+          test -s lyric-studio/index.html
+      - name: Upload website files
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: '.'
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
